@@ -1,23 +1,14 @@
-const http = require('node:http');
-const fs = require('node:fs');
+const express = require('express');
+const path = require('node:path');
+const app = express();
 
-http.createServer((req, res) => {
-    const url = new URL(`https://${req.headers.host}${req.url}`);
-    const file = `./public${url.pathname}`;
+// serve static files
+app.use(express.static(path.join(__dirname, 'public')));
 
-    function fileReader(file){
-        fs.readFile(file, (err, data) => {
-            if(err){
-                fileReader('./public/404.html');
-                return;
-            }
-    
-            res.writeHead(200, {'Content-Type': 'text/html'});
-            res.write(data);
-            res.end();
-        });
-    }
+// midelware for 404 status
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+})
 
-    fileReader(file);
-
-}).listen(8080);
+const PORT = 3000;
+app.listen(PORT, () => console.log(`server running at https://localhost:${PORT}`));
